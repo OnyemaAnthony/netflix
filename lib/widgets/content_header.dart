@@ -102,6 +102,7 @@ class _ContentHeaderDesktopState extends State<ContentHeaderDesktop> {
           ..initialize().then((value) {
             setState(() {});
           })
+          ..setVolume(0)
           ..play();
     super.initState();
   }
@@ -121,22 +122,35 @@ class _ContentHeaderDesktopState extends State<ContentHeaderDesktop> {
       child: Stack(
         alignment: Alignment.bottomLeft,
         children: [
-          Container(
-            height: 500,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-              image: AssetImage(widget.featuredContent!.imageUrl!),
-              fit: BoxFit.cover,
-            )),
+          AspectRatio(
+            aspectRatio: controller.value.isInitialized
+                ? controller.value.aspectRatio
+                : 2.344,
+            child: controller.value.isInitialized
+                ? VideoPlayer(controller)
+                : Image.asset(
+                    widget.featuredContent!.imageUrl!,
+                    fit: BoxFit.cover,
+                  ),
           ),
-          Container(
-            height: 500,
-            decoration: const BoxDecoration(
-                gradient: LinearGradient(
-              colors: [Colors.black, Colors.transparent],
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-            )),
+          Positioned(
+            bottom: -1,
+            left: 0,
+            right: 0,
+            child: AspectRatio(
+              aspectRatio: controller.value.isInitialized
+                  ? controller.value.aspectRatio
+                  : 2.344,
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.black, Colors.transparent],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                ),
+              ),
+            ),
           ),
           Positioned(
             left: 60,
@@ -166,6 +180,56 @@ class _ContentHeaderDesktopState extends State<ContentHeaderDesktop> {
                     ],
                   ),
                 ),
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  children: [
+                    _PlayButton(),
+                    SizedBox(
+                      width: 16,
+                    ),
+                    FlatButton.icon(
+                      padding: EdgeInsets.fromLTRB(
+                        25,
+                        10,
+                        30,
+                        10,
+                      ),
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.info_outline,
+                        size: 30,
+                      ),
+                      label: Text(
+                        'More Info',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    if (controller.value.isInitialized)
+                      IconButton(
+                        icon:
+                            Icon(isMuted ? Icons.volume_off : Icons.volume_up),
+                        color: Colors.white,
+                        iconSize: 30,
+                        onPressed: () {
+                          setState(() {
+                            isMuted
+                                ? controller.setVolume(100)
+                                : controller.setVolume(0);
+                            isMuted = controller.value.volume == 0;
+                          });
+                        },
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -180,7 +244,19 @@ class _PlayButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlatButton.icon(
       color: Colors.white,
-      padding: EdgeInsets.fromLTRB(15, 5, 20, 5),
+      padding: !Responsive.isDesktop(context)
+          ? EdgeInsets.fromLTRB(
+              15,
+              5,
+              20,
+              5,
+            )
+          : EdgeInsets.fromLTRB(
+              25,
+              10,
+              30,
+              10,
+            ),
       onPressed: () {},
       icon: Icon(
         Icons.play_arrow,
