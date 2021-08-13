@@ -13,8 +13,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late double _scrollOffset = 0.0;
+
   late ScrollController _scrollController;
+  double _scrollOffset = 0;
 
   @override
   void initState() {
